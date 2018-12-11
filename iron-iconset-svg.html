@@ -205,7 +205,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       // create the icon map on-demand, since the iconset itself has no discrete
       // signal to know when it's children are fully parsed
       this._icons = this._icons || this._createIconMap();
-      return this._prepareSvgClone(this._icons[id], this.size, mirrorAllowed);
+      return this._prepareSvgClone(id, this._icons[id], this.size, mirrorAllowed);
     },
 
     /**
@@ -214,7 +214,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * @param {Boolean} mirrorAllowed
      * @return {Element}
      */
-    _prepareSvgClone: function(sourceSvg, size, mirrorAllowed) {
+    _prepareSvgClone: function(sourceId, sourceSvg, size, mirrorAllowed) {
       if (sourceSvg) {
         var content = sourceSvg.cloneNode(true),
             svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
@@ -224,6 +224,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (mirrorAllowed && content.hasAttribute('mirror-in-rtl')) {
           cssText += '-webkit-transform:scale(-1,1);transform:scale(-1,1);';
         }
+        
+        content.removeAttribute('id');
+        content = content.outerHTML.replace(/id="/g, 'id="' + sourceId + '-')
+                    .replace(/fill="url\(#/g, 'fill="url(#' + sourceId + '-');
 
         svg.setAttribute('viewBox', viewBox);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -231,7 +235,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
         // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
         svg.style.cssText = cssText;
-        svg.appendChild(content).removeAttribute('id');
+        svg.innerHTML = content;
         return svg;
       }
       return null;
