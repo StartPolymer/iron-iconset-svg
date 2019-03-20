@@ -226,8 +226,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         
         content.removeAttribute('id');
-        content = content.outerHTML.replace(/id="/g, 'id="' + sourceId + '-')
-                    .replace(/fill="url\(#/g, 'fill="url(#' + sourceId + '-');
+        
+        // IE 11 does not provide the outerHTML property.
+        var outer = content.outerHTML || new XMLSerializer().serializeToString(content);
+        
+        content = outer.replace(/id="/g, 'id="' + sourceId + '-')
+                  .replace(/fill="url\(#/g, 'fill="url(#' + sourceId + '-');
 
         svg.setAttribute('viewBox', viewBox);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
