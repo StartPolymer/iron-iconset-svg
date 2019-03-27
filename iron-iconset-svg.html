@@ -230,8 +230,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // IE 11 does not provide the outerHTML property.
         var outer = content.outerHTML || new XMLSerializer().serializeToString(content);
         
-        content = outer.replace(/id="/g, 'id="' + sourceId + '-')
-                  .replace(/fill="url\(#/g, 'fill="url(#' + sourceId + '-');
+        var contentString = outer.replace(/id="/g, 'id="' + sourceId + '-')
+                            .replace(/fill="url\(#/g, 'fill="url(#' + sourceId + '-');
 
         svg.setAttribute('viewBox', viewBox);
         svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -239,7 +239,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
         // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
         svg.style.cssText = cssText;
-        svg.innerHTML = content;
+        
+        var isIEBrowser = /*@cc_on!@*/false || !!document.documentMode;
+        if (isIEBrowser) {
+          svg.appendChild(content);
+        } else {
+          svg.innerHTML = contentString;
+        }
+
         return svg;
       }
       return null;
